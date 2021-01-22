@@ -13,3 +13,4 @@
 
 #### Pkgs Installation
 + pip3 install streamlit pandas spacy textblob neattext nltk altair matplotlib
++ python -m spacy download en_core_web_sm

@@ -90,6 +90,40 @@ def main():
 
     if choice == "MultiVerse":
         st.subheader("MultiVerse Retrieval")
+        st.subheader("MultiVerse Retrieval")
+        book_list = df["book"].unique().tolist()
+        book_name = st.sidebar.selectbox("Book", book_list)
+        chapter = st.sidebar.number_input("Chapter", 1)
+        bible_df = df[df["book"] == book_name]
+        all_verse = bible_df["verse"].unique().tolist()
+        verse = st.sidebar.multiselect("Verse", all_verse, default=1)
+        selected_passage = bible_df.iloc[verse]
+        st.dataframe(selected_passage)
+        passage_details = "{} Chapter::{} Verse::{}".format(book_name, chapter, verse)
+        st.info(passage_details)
+
+        # Layout
+        col1, col2 = st.beta_columns(2)
+        # Join all text as a sentence
+        docx = " ".join(selected_passage["text"].unique().tolist())
+
+        with col1:
+            st.info("Details")
+            for i, row in selected_passage.iterrows():
+                st.write(row["text"])
+
+        with col2:
+            st.success("StudyMode")
+            with st.beta_expander("Visualize Entities"):
+                st.write(docx)
+                render_entities(docx)
+
+            with st.beta_expander("Visualize Pos Tags"):
+                tagged_docx = get_tags(docx)
+                processed_tags = mytag_visualizer(tagged_docx)
+                st.write(processed_tags)  # Raw
+                stc.html(processed_tags, height=1000, scrolling=True)
+
     else:
         st.subheader("About")
 

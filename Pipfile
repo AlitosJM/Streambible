@@ -12,6 +12,10 @@ nltk = "*"
 altair = "*"
 matplotlib = "*"
 neattext = "*"
+black = "*"
+radon = "*"
+bandit = "*"
+vulture = "*"
 
 [dev-packages]
 

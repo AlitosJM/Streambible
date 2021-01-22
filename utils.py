@@ -1,9 +1,19 @@
+import streamlit as st
+import pandas as pd
+import altair as alt
 import streamlit.components.v1 as stc
 from textblob import TextBlob
 from collections import Counter
 import spacy
 from spacy import displacy
+
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+
 nlp = spacy.load('en_core_web_sm')
+
+cat = "☕—ฅ/ᐠ. ̫ .ᐟ\ฅ —☕"
 
 
 HTML_RANDOM_TEMPLATE = """<div style='padding:10px;background-color:#E1E2E1;
@@ -85,3 +95,31 @@ def mytag_visualizer(tagged_docx):
     result = ' '.join(colored_text)
     # print(result)
     return result
+
+
+def plot_mendelhall_curve(docx):
+    word_length = [len(token) for token in docx.split()]
+    word_length_count = Counter(word_length)
+    sorted_word_length_count = sorted(dict(word_length_count).items())
+    x, y = zip(*sorted_word_length_count)
+    fig = plt.figure(figsize=(20, 10))
+    plt.plot(x, y)
+    plt.title("Plot of Word Length Distribution")
+    plt.show()
+    st.pyplot(fig)
+
+
+def get_most_common_tokens(docx, num=2):
+    word_freq = Counter(docx.split())
+    most_common_tokens = word_freq.most_common(num)
+    return dict(most_common_tokens)
+
+
+def plot_word_freq_with_altair(docx, num=10):
+    word_freq = Counter(docx.split())
+    most_common_tokens = dict(word_freq.most_common(num))
+    word_freq_df = pd.DataFrame({'tokens': most_common_tokens.keys(),
+                                 'counts': most_common_tokens.values()})
+    c = alt.Chart(word_freq_df).mark_bar().encode(
+        x='tokens', y='counts')
+    st.altair_chart(c, use_container_width=True)

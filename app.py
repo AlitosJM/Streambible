@@ -21,8 +21,8 @@ def load_bible(data):
 
 
 def main():
-    st.title("StreamBible")
-    # stc.html(HTML_BANNER)
+    # st.title("StreamBible")
+    stc.html(HTML_BANNER)
     menu = ["Home", "MultiVerse", "About"]
 
     df = load_bible("data/KJV_Bible.csv")
@@ -90,7 +90,6 @@ def main():
 
     if choice == "MultiVerse":
         st.subheader("MultiVerse Retrieval")
-        st.subheader("MultiVerse Retrieval")
         book_list = df["book"].unique().tolist()
         book_name = st.sidebar.selectbox("Book", book_list)
         chapter = st.sidebar.number_input("Chapter", 1)
@@ -109,23 +108,48 @@ def main():
 
         with col1:
             st.info("Details")
-            for i, row in selected_passage.iterrows():
+            for row in selected_passage.iterrows():
                 st.write(row["text"])
 
         with col2:
             st.success("StudyMode")
             with st.beta_expander("Visualize Entities"):
-                st.write(docx)
+                # st.write(docx)
                 render_entities(docx)
 
             with st.beta_expander("Visualize Pos Tags"):
                 tagged_docx = get_tags(docx)
                 processed_tags = mytag_visualizer(tagged_docx)
-                st.write(processed_tags)  # Raw
+                # st.write(processed_tags)  # Raw
                 stc.html(processed_tags, height=1000, scrolling=True)
+
+            with st.beta_expander("Keywords"):
+                processed_docx = nfx.remove_stopwords(docx)
+                keywords_tokens = get_most_common_tokens(processed_docx, 5)
+                st.write(keywords_tokens)
+
+        with st.beta_expander("Verse Curve"):
+            plot_mendelhall_curve(docx)
+
+        with st.beta_expander("Word Freq Plot"):
+            plot_word_freq_with_altair(docx)
+
+        with st.beta_expander("Pos Tags Plot"):
+            tagged_docx = get_tags(docx)
+            tagged_df = pd.DataFrame(tagged_docx, columns=["Tokens", "Tags"])
+            # st.dataframe(tagged_df)
+            df_tag_count = tagged_df["Tags"].value_counts().to_frame("counts")
+            df_tag_count["tag_type"] = df_tag_count.index
+            # st.dataframe(df_tag_count)
+
+            c = alt.Chart(df_tag_count).mark_bar().encode(x="tag_type", y="counts")
+            st.altair_chart(c, use_container_width=True)
 
     else:
         st.subheader("About")
+        st.text("Build with Streamlit")
+        st.text("Example from Jesse E.Agbe(JCharis)")
+        st.success(cat)
 
 
 if __name__ == "__main__":
